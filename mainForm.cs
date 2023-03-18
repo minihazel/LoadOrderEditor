@@ -13,6 +13,7 @@ using System.Drawing;
 using System.Text.RegularExpressions;
 using System.Runtime.InteropServices;
 using System.ComponentModel;
+using System.Linq;
 
 namespace LoadOrderEditor
 {
@@ -51,64 +52,55 @@ namespace LoadOrderEditor
             serverFolderPath = Path.Combine(currentDir, @"..\..\");
             serverFolder = Path.GetFullPath(serverFolderPath);
 
-            string orderPath = Path.Combine(currentDir, "order.json");
-            bool orderPathExists = File.Exists(orderPath);
-            if (!orderPathExists)
+            bool serverFolderExists = Directory.Exists(serverFolder);
+            if (serverFolderExists)
             {
-                showMessage("\'order.json\' does not seem to exist.\n\nPlease run Aki.Server.exe once before you try to use this tool.\nAlternatively, put this in user\\mods if you haven\'t already!");
-                Application.Exit();
-            }
-            else
-            {
-                bool serverFolderExists = Directory.Exists(serverFolder);
-                if (serverFolderExists)
+                refreshUI();
+
+                string directory = Path.GetDirectoryName(serverFolder);
+                this.Text = $"Load Order Editor - {directory}";
+                optionsClearCache.Text = $"   Clear cache for {Path.GetFileName(directory)}";
+                clearCache();
+
+                if (orderList.Controls.ContainsKey("modOrder0"))
                 {
-                    string directory = Path.GetDirectoryName(serverFolder);
-                    this.Text = $"Load Order Editor - {directory}";
-                    optionsClearCache.Text = $"   Clear cache for {Path.GetFileName(directory)}";
-                    clearCache();
-                    refreshUI();
+                    string sliced = orderList.Controls["modOrder0"].Text.Remove(0, 2);
+                    string trimmed = Regex.Replace(sliced, @"^\d+", "").Trim();
+                    string modFolder = Path.Combine(currentDir, trimmed);
+                    string packageJsonFile = Path.Combine(modFolder, "package.json");
 
-                    if (orderList.Controls.ContainsKey("modOrder0"))
+                    bool packageJsonFileExists = File.Exists(packageJsonFile);
+                    if (packageJsonFileExists)
                     {
-                        string sliced = orderList.Controls["modOrder0"].Text.Remove(0, 2);
-                        string trimmed = Regex.Replace(sliced, @"^\d+", "").Trim();
-                        string modFolder = Path.Combine(currentDir, trimmed);
-                        string packageJsonFile = Path.Combine(modFolder, "package.json");
+                        string openFile = File.ReadAllText(packageJsonFile);
+                        JavaScriptSerializer packageFile = new JavaScriptSerializer();
+                        var packageObj = packageFile.Deserialize<Dictionary<string, object>>(openFile);
+                        string _name = packageObj["name"].ToString();
+                        string _version = packageObj["version"].ToString();
+                        string _author = packageObj["author"].ToString();
 
-                        bool packageJsonFileExists = File.Exists(packageJsonFile);
-                        if (packageJsonFileExists)
-                        {
-                            string openFile = File.ReadAllText(packageJsonFile);
-                            JavaScriptSerializer packageFile = new JavaScriptSerializer();
-                            var packageObj = packageFile.Deserialize<Dictionary<string, object>>(openFile);
-                            string _name = packageObj["name"].ToString();
-                            string _version = packageObj["version"].ToString();
-                            string _author = packageObj["author"].ToString();
-
-                            optionsModInfo.Text =
-                                $"Mod name: {_name}" +
-                                $"\n\n" +
-                                $"Mod version: {_version}" +
-                                $"\n\n" +
-                                $"Mod author: {_author}";
-                        }
-                        else
-                        {
-                            optionsModInfo.Text =
-                                $"Mod name: N/A" +
-                                $"\n\n" +
-                                $"Mod version: N/A" +
-                                $"\n\n" +
-                                $"Mod author: N/A";
-                        }
-
-                        string activeItem = orderList.Controls["modOrder0"].Text;
-                        activeItem = "> " + activeItem;
-                        orderList.Controls["modOrder0"].Text = activeItem;
-                        orderList.Controls["modOrder0"].ForeColor = Color.DodgerBlue;
-                        orderList.Controls["modOrder0"].BackColor = selectColor;
+                        optionsModInfo.Text =
+                            $"Mod name: {_name}" +
+                            $"\n\n" +
+                            $"Mod version: {_version}" +
+                            $"\n\n" +
+                            $"Mod author: {_author}";
                     }
+                    else
+                    {
+                        optionsModInfo.Text =
+                            $"Mod name: N/A" +
+                            $"\n\n" +
+                            $"Mod version: N/A" +
+                            $"\n\n" +
+                            $"Mod author: N/A";
+                    }
+
+                    string activeItem = orderList.Controls["modOrder0"].Text;
+                    activeItem = "> " + activeItem;
+                    orderList.Controls["modOrder0"].Text = activeItem;
+                    orderList.Controls["modOrder0"].ForeColor = Color.DodgerBlue;
+                    orderList.Controls["modOrder0"].BackColor = selectColor;
                 }
             }
         }
@@ -169,7 +161,27 @@ namespace LoadOrderEditor
                 var orderObject = serializer.Deserialize<Dictionary<string, object>>(orderJson);
                 var loadOrder = (ArrayList)orderObject["order"];
 
-                foreach (string item in loadOrder)
+                // -- Check if user/mods contain any folders that are NOT in the load order
+                string[] modsFolders = Directory.GetDirectories(currentDir);
+                foreach (string modFolder in modsFolders)
+                {
+                    string modName = Path.GetFileName(modFolder);
+                    if (!loadOrder.Contains(modName))
+                    {
+                        loadOrder.Add(modName);
+                    }
+                }
+
+                string updatedJson = serializer.Serialize(orderObject);
+                File.WriteAllText(orderFile, updatedJson);
+
+                // -- Restart process
+
+                JavaScriptSerializer newSerializer = new JavaScriptSerializer();
+                var newOrderObject = newSerializer.Deserialize<Dictionary<string, object>>(orderJson);
+                var newLoadOrder = (ArrayList)newOrderObject["order"];
+
+                foreach (string item in newLoadOrder)
                 {
                     modList.Add(item);
                 }
@@ -179,8 +191,25 @@ namespace LoadOrderEditor
             }
             else
             {
-                showMessage("It appears that you placed this app in the wrong folder.\n\nPlease make sure that \'Load Order Editon.exe\' is in the same folder as \'order.json\'\n\nThey should both be in \'<SPT>\\user\\mods\' folder!");
-                Application.Exit();
+                string usermodsParent = Path.GetFileName(currentDir);
+                
+                if (usermodsParent == "mods")
+                {
+                    var orderArray = new string[] { };
+                    var orderObject = new { order = orderArray };
+                    var serializer = new JavaScriptSerializer();
+                    var orderJson = serializer.Serialize(orderObject);
+                    File.WriteAllText(orderFile, orderJson);
+
+                    refreshUI();
+                    Application.Restart();
+                }
+                else
+                {
+                    showMessage("It appears that you placed this app in the wrong folder.\n\nPlease make sure that \'Load Order Editor.exe\' is in the \'user\\mods\' folder!");
+                    Application.Exit();
+                }
+                
             }
         }
 
