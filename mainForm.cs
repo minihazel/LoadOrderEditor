@@ -55,6 +55,7 @@ namespace LoadOrderEditor
             bool serverFolderExists = Directory.Exists(serverFolder);
             if (serverFolderExists)
             {
+                checkRedundantMods();
                 refreshUI();
 
                 string directory = Path.GetDirectoryName(serverFolder);
@@ -91,7 +92,23 @@ namespace LoadOrderEditor
                         catch (Exception ex)
                         {
                             Debug.WriteLine($"ERROR: {ex}");
-                            MessageBox.Show($"It seems that your order.json file is faulty, or another error occurred. Please delete your order.json and restart the app, alternatively edit the file manually.", this.Text, MessageBoxButtons.OK);
+                            if (MessageBox.Show(
+                                            "It seems that your order.json file is faulty, alternatively something else occurred." +
+                                            "\n\n" +
+                                            "Click YES to close the app and re-generate order.json\n\n" +
+                                            "Click NO to close the app and edit order.json manually",
+                                            this.Text, MessageBoxButtons.YesNo) == DialogResult.Yes)
+                            {
+                                bool orderExists = File.Exists(Path.Combine(currentDir, "order.json"));
+                                if (orderExists)
+                                    File.Delete(Path.Combine(currentDir, "order.json"));
+
+                                generateOrder();
+                            }
+                            else
+                            {
+                                Application.Exit();
+                            }
                         }
 
                     }
@@ -112,6 +129,18 @@ namespace LoadOrderEditor
                     orderList.Controls["modOrder0"].BackColor = selectColor;
                 }
             }
+        }
+
+        public void generateOrder()
+        {
+            var orderArray = new string[] { };
+            var orderObject = new { order = orderArray };
+            var serializer = new JavaScriptSerializer();
+            var orderJson = serializer.Serialize(orderObject);
+
+            File.WriteAllText(orderFile, orderJson);
+            refreshUI();
+            Application.Restart();
         }
 
         public void clearCache()
@@ -150,6 +179,50 @@ namespace LoadOrderEditor
                     {
                         Debug.WriteLine($"ERROR: {err.Message.ToString()}");
                         MessageBox.Show($"Oops! It seems like we received an error. If you're uncertain what it\'s about, please message the developer with a screenshot:\n\n{err.Message.ToString()}", this.Text, MessageBoxButtons.OK);
+                    }
+                }
+            }
+        }
+
+        public void checkRedundantMods()
+        {
+            orderFile = Path.Combine(currentDir, "order.json");
+            bool orderFileExists = File.Exists(orderFile);
+            if (orderFileExists)
+            {
+                string orderJson = File.ReadAllText(orderFile);
+                JavaScriptSerializer serializer = new JavaScriptSerializer();
+                var orderObject = serializer.Deserialize<Dictionary<string, object>>(orderJson);
+                var loadOrder = (ArrayList)orderObject["order"];
+
+                int redundantMods = 0;
+                List<string> redundantItems = new List<string>();
+                foreach (string item in loadOrder)
+                {
+                    bool folderExists = Directory.Exists(item);
+                    if (!folderExists)
+                    {
+                        redundantMods++;
+                        redundantItems.Add(item);
+                    }
+                }
+
+                if (redundantMods > 0)
+                {
+                    if (MessageBox.Show($"{redundantMods} redundant items detected in order.json." +
+                        $"\n\n" +
+                        $"- {string.Join("\n- ", redundantItems.Select(item => Path.GetFileName(item)))}" +
+                        $"\n\n" +
+                        $"Click YES to remove them\n\nClick NO to keep them",
+                        this.Text, MessageBoxButtons.YesNo) == DialogResult.Yes)
+                    {
+                        foreach (string item in redundantItems)
+                        {
+                            loadOrder.Remove(item);
+                            string updatedJson = serializer.Serialize(orderObject);
+                            File.WriteAllText(orderFile, updatedJson);
+                            Application.Restart();
+                        }
                     }
                 }
             }
@@ -203,13 +276,37 @@ namespace LoadOrderEditor
                     catch (Exception ex)
                     {
                         Debug.WriteLine($"ERROR: {ex}");
-                        MessageBox.Show($"It seems that your order.json file is faulty, or another error occurred.\n\nPlease delete your order.json and restart the app, alternatively edit the file manually [NOT RECOMMENDED].", this.Text, MessageBoxButtons.OK);
+                        if (MessageBox.Show(
+                                "It seems that your order.json file is faulty, alternatively something else occurred." +
+                                "\n\n" +
+                                "Click YES to close the app and re-create order.json\n\n" +
+                                "Click NO to close the app and edit order.json manually",
+                                this.Text, MessageBoxButtons.YesNo) == DialogResult.Yes)
+                        {
+                            generateOrder();
+                        }
+                        else
+                        {
+                            Application.Exit();
+                        }
                     }
                 }
                 catch (Exception ex)
                 {
                     Debug.WriteLine($"ERROR: {ex}");
-                    MessageBox.Show($"It seems that your order.json file is faulty, or another error occurred.\n\nPlease delete your order.json and restart the app, alternatively edit the file manually [NOT RECOMMENDED].", this.Text, MessageBoxButtons.OK);
+                    if (MessageBox.Show(
+                                "It seems that your order.json file is faulty, alternatively something else occurred." +
+                                "\n\n" +
+                                "Click YES to close the app and re-create order.json\n\n" +
+                                "Click NO to close the app and edit order.json manually",
+                                this.Text, MessageBoxButtons.YesNo) == DialogResult.Yes)
+                    {
+                        generateOrder();
+                    }
+                    else
+                    {
+                        Application.Exit();
+                    }
                 }
             }
             else
@@ -258,6 +355,7 @@ namespace LoadOrderEditor
                 lbl.MouseLeave += new EventHandler(lbl_MouseLeave);
                 lbl.MouseDown += new MouseEventHandler(lbl_MouseDown);
                 lbl.MouseUp += new MouseEventHandler(lbl_MouseUp);
+                lbl.MouseDoubleClick += new MouseEventHandler(lbl_MouseDoubleClick);
                 orderList.Controls.Add(lbl);
             }
 
@@ -346,7 +444,19 @@ namespace LoadOrderEditor
                         catch (Exception ex)
                         {
                             Debug.WriteLine($"ERROR: {ex}");
-                            MessageBox.Show($"It seems that your order.json file is faulty, or another error occurred. Please delete your order.json and restart the app, alternatively edit the file manually.", this.Text, MessageBoxButtons.OK);
+                            if (MessageBox.Show(
+                                "It seems that your order.json file is faulty, alternatively something else occurred." +
+                                "\n\n" +
+                                "Click YES to close the app and re-create order.json\n\n" +
+                                "Click NO to close the app and edit order.json manually",
+                                this.Text, MessageBoxButtons.YesNo) == DialogResult.Yes)
+                            {
+                                generateOrder();
+                            }
+                            else
+                            {
+                                Application.Exit();
+                            }
                         }
                     }
                     else
@@ -374,6 +484,38 @@ namespace LoadOrderEditor
             System.Windows.Forms.Label label = (System.Windows.Forms.Label)sender;
             if (label.Text != "")
             {
+            }
+        }
+
+        private void lbl_MouseDoubleClick(object sender, EventArgs e)
+        {
+            System.Windows.Forms.Label lbl = (System.Windows.Forms.Label)sender;
+            if (lbl.Text != "")
+            {
+                string result = lbl.Text.Remove(0, 2);
+                result = Regex.Replace(result, @"^\d+", "").Trim();
+                string modFolder = Path.Combine(currentDir, result);
+
+                bool modFolderExists = Directory.Exists(modFolder);
+                if (modFolderExists)
+                {
+                    try
+                    {
+                        Process.Start("explorer.exe", modFolder);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"ERROR: {ex.Message.ToString()}");
+                        MessageBox.Show($"Oops! It seems like we received an error. If you're uncertain what it\'s about, please message the developer with a screenshot:\n\n{ex.Message.ToString()}", this.Text, MessageBoxButtons.OK);
+                    }
+                }
+                else
+                {
+                    if (MessageBox.Show($"It seems that the path is invalid or this mod doesn't exist anymore. Restarting to refresh.", this.Text, MessageBoxButtons.OK) == DialogResult.OK)
+                    {
+                        Application.Restart();
+                    }
+                }
             }
         }
 
@@ -470,7 +612,19 @@ namespace LoadOrderEditor
                             catch (Exception ex)
                             {
                                 Debug.WriteLine($"ERROR: {ex}");
-                                MessageBox.Show($"It seems that your order.json file is faulty, or another error occurred. Please delete your order.json and restart the app, alternatively edit the file manually.", this.Text, MessageBoxButtons.OK);
+                                if (MessageBox.Show(
+                                            "It seems that your order.json file is faulty, alternatively something else occurred." +
+                                            "\n\n" +
+                                            "Click YES to close the app and re-create order.json\n\n" +
+                                            "Click NO to close the app and edit order.json manually",
+                                            this.Text, MessageBoxButtons.YesNo) == DialogResult.Yes)
+                                {
+                                    generateOrder();
+                                }
+                                else
+                                {
+                                    Application.Exit();
+                                }
                             }
                         }
                         else
@@ -547,7 +701,19 @@ namespace LoadOrderEditor
                             catch (Exception ex)
                             {
                                 Debug.WriteLine($"ERROR: {ex}");
-                                MessageBox.Show($"It seems that your order.json file is faulty, or another error occurred. Please delete your order.json and restart the app, alternatively edit the file manually.", this.Text, MessageBoxButtons.OK);
+                                if (MessageBox.Show(
+                                            "It seems that your order.json file is faulty, alternatively something else occurred." +
+                                            "\n\n" +
+                                            "Click YES to close the app and re-create order.json\n\n" +
+                                            "Click NO to close the app and edit order.json manually",
+                                            this.Text, MessageBoxButtons.YesNo) == DialogResult.Yes)
+                                {
+                                    generateOrder();
+                                }
+                                else
+                                {
+                                    Application.Exit();
+                                }
                             }
                         }
                     }
@@ -612,7 +778,19 @@ namespace LoadOrderEditor
                             catch (Exception ex)
                             {
                                 Debug.WriteLine($"ERROR: {ex}");
-                                MessageBox.Show($"It seems that your order.json file is faulty, or another error occurred. Please delete your order.json and restart the app, alternatively edit the file manually.", this.Text, MessageBoxButtons.OK);
+                                if (MessageBox.Show(
+                                            "It seems that your order.json file is faulty, alternatively something else occurred." +
+                                            "\n\n" +
+                                            "Click YES to close the app and re-create order.json\n\n" +
+                                            "Click NO to close the app and edit order.json manually",
+                                            this.Text, MessageBoxButtons.YesNo) == DialogResult.Yes)
+                                {
+                                    generateOrder();
+                                }
+                                else
+                                {
+                                    Application.Exit();
+                                }
                             }
                         }
                     }
