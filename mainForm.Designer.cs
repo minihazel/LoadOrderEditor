@@ -96,14 +96,15 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.optionsMoveUp.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.optionsMoveUp.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.optionsMoveUp.Font = new System.Drawing.Font("Bahnschrift Light", 20F);
+            this.optionsMoveUp.Font = new System.Drawing.Font("Bahnschrift", 20F);
+            this.optionsMoveUp.ForeColor = System.Drawing.Color.DodgerBlue;
             this.optionsMoveUp.Location = new System.Drawing.Point(108, 112);
             this.optionsMoveUp.Name = "optionsMoveUp";
             this.optionsMoveUp.Size = new System.Drawing.Size(75, 75);
             this.optionsMoveUp.TabIndex = 4;
             this.optionsMoveUp.Text = "˄";
             this.optionsMoveUp.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.optionsMoveUp.Click += new System.EventHandler(this.optionsMoveUp_Click);
+            this.optionsMoveUp.MouseDown += new System.Windows.Forms.MouseEventHandler(this.optionsMoveUp_MouseDown);
             this.optionsMoveUp.MouseEnter += new System.EventHandler(this.optionsMoveUp_MouseEnter);
             this.optionsMoveUp.MouseLeave += new System.EventHandler(this.optionsMoveUp_MouseLeave);
             // 
@@ -113,14 +114,15 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.optionsMoveDown.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.optionsMoveDown.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.optionsMoveDown.Font = new System.Drawing.Font("Bahnschrift Light", 20F);
+            this.optionsMoveDown.Font = new System.Drawing.Font("Bahnschrift", 20F);
+            this.optionsMoveDown.ForeColor = System.Drawing.Color.DodgerBlue;
             this.optionsMoveDown.Location = new System.Drawing.Point(108, 195);
             this.optionsMoveDown.Name = "optionsMoveDown";
             this.optionsMoveDown.Size = new System.Drawing.Size(75, 75);
             this.optionsMoveDown.TabIndex = 5;
             this.optionsMoveDown.Text = "˅";
             this.optionsMoveDown.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.optionsMoveDown.Click += new System.EventHandler(this.optionsMoveDown_Click);
+            this.optionsMoveDown.MouseDown += new System.Windows.Forms.MouseEventHandler(this.optionsMoveDown_MouseDown);
             this.optionsMoveDown.MouseEnter += new System.EventHandler(this.optionsMoveDown_MouseEnter);
             this.optionsMoveDown.MouseLeave += new System.EventHandler(this.optionsMoveDown_MouseLeave);
             // 

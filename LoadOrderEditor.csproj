@@ -24,7 +24,7 @@
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>false</MapFileExtensions>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
-    <ApplicationRevision>69</ApplicationRevision>
+    <ApplicationRevision>82</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -50,7 +50,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>list.ico</ApplicationIcon>
+    <ApplicationIcon>menu.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestCertificateThumbprint>BFAED219A2544C931A9CCC720D5AFC002E6EBA0E</ManifestCertificateThumbprint>
@@ -152,6 +152,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="list.ico" />
+    <Content Include="menu-bar.ico" />
+    <Content Include="menu.ico" />
   </ItemGroup>
   <ItemGroup>
     <PublishFile Include="list.ico">

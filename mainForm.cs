@@ -12,6 +12,7 @@ using System.Collections;
 using System.Drawing;
 using System.Text.RegularExpressions;
 using System.Runtime.InteropServices;
+using System.ComponentModel;
 
 namespace LoadOrderEditor
 {
@@ -58,6 +59,47 @@ namespace LoadOrderEditor
                 optionsClearCache.Text = $"   Clear cache for {Path.GetFileName(directory)}";
                 clearCache();
                 refreshUI();
+
+                if (orderList.Controls.ContainsKey("modOrder0"))
+                {
+                    string sliced = orderList.Controls["modOrder0"].Text.Remove(0, 2);
+                    string trimmed = Regex.Replace(sliced, @"^\d+", "").Trim();
+                    string modFolder = Path.Combine(currentDir, trimmed);
+                    string packageJsonFile = Path.Combine(modFolder, "package.json");
+
+                    bool packageJsonFileExists = File.Exists(packageJsonFile);
+                    if (packageJsonFileExists)
+                    {
+                        string openFile = File.ReadAllText(packageJsonFile);
+                        JavaScriptSerializer packageFile = new JavaScriptSerializer();
+                        var packageObj = packageFile.Deserialize<Dictionary<string, object>>(openFile);
+                        string _name = packageObj["name"].ToString();
+                        string _version = packageObj["version"].ToString();
+                        string _author = packageObj["author"].ToString();
+
+                        optionsModInfo.Text =
+                            $"Mod name: {_name}" +
+                            $"\n\n" +
+                            $"Mod version: {_version}" +
+                            $"\n\n" +
+                            $"Mod author: {_author}";
+                    }
+                    else
+                    {
+                        optionsModInfo.Text =
+                            $"Mod name: N/A" +
+                            $"\n\n" +
+                            $"Mod version: N/A" +
+                            $"\n\n" +
+                            $"Mod author: N/A";
+                    }
+
+                    string activeItem = orderList.Controls["modOrder0"].Text;
+                    activeItem = "> " + activeItem;
+                    orderList.Controls["modOrder0"].Text = activeItem;
+                    orderList.Controls["modOrder0"].ForeColor = Color.DodgerBlue;
+                    orderList.Controls["modOrder0"].BackColor = selectColor;
+                }
             }
         }
 
@@ -124,6 +166,11 @@ namespace LoadOrderEditor
 
                 mainOrder = modList.ToArray();
                 listMods(mainOrder);
+            }
+            else
+            {
+                showMessage("It appears that you placed this app in the wrong folder.\n\nPlease make sure that \'Load Order Editon.exe\' is in the same folder as \'order.json\'\n\nThey should both be in \'<SPT>\\user\\mods\' folder!");
+                Application.Exit();
             }
         }
 
@@ -261,25 +308,25 @@ namespace LoadOrderEditor
 
         private void optionsMoveUp_MouseEnter(object sender, EventArgs e)
         {
-            optionsMoveUp.ForeColor = Color.DodgerBlue;
-            optionsMoveUp.BackColor = hoverColor;
+            // optionsMoveUp.ForeColor = Color.DodgerBlue;
+            optionsMoveUp.BackColor = selectColor;
         }
 
         private void optionsMoveUp_MouseLeave(object sender, EventArgs e)
         {
-            optionsMoveUp.ForeColor = Color.LightGray;
+            // optionsMoveUp.ForeColor = Color.LightGray;
             optionsMoveUp.BackColor = idleColor;
         }
 
         private void optionsMoveDown_MouseEnter(object sender, EventArgs e)
         {
-            optionsMoveDown.ForeColor = Color.DodgerBlue;
-            optionsMoveDown.BackColor = hoverColor;
+            // optionsMoveDown.ForeColor = Color.DodgerBlue;
+            optionsMoveDown.BackColor = selectColor;
         }
 
         private void optionsMoveDown_MouseLeave(object sender, EventArgs e)
         {
-            optionsMoveDown.ForeColor = Color.LightGray;
+            // optionsMoveDown.ForeColor = Color.LightGray;
             optionsMoveDown.BackColor = idleColor;
         }
 
@@ -326,6 +373,36 @@ namespace LoadOrderEditor
 
                     if (trimmed.ToLower() == itemName.ToLower())
                     {
+                        string modFolder = Path.Combine(currentDir, itemName);
+                        string packageJsonFile = Path.Combine(modFolder, "package.json");
+
+                        bool packageJsonFileExists = File.Exists(packageJsonFile);
+                        if (packageJsonFileExists)
+                        {
+                            string openFile = File.ReadAllText(packageJsonFile);
+                            JavaScriptSerializer packageFile = new JavaScriptSerializer();
+                            var packageObj = packageFile.Deserialize<Dictionary<string, object>>(openFile);
+                            string _name = packageObj["name"].ToString();
+                            string _version = packageObj["version"].ToString();
+                            string _author = packageObj["author"].ToString();
+
+                            optionsModInfo.Text =
+                                $"Mod name: {_name}" +
+                                $"\n\n" +
+                                $"Mod version: {_version}" +
+                                $"\n\n" +
+                                $"Mod author: {_author}";
+                        }
+                        else
+                        {
+                            optionsModInfo.Text =
+                                $"Mod name: N/A" +
+                                $"\n\n" +
+                                $"Mod version: N/A" +
+                                $"\n\n" +
+                                $"Mod author: N/A";
+                        }
+
                         string activeItem = component.Text;
                         activeItem = "> " + activeItem;
                         component.Text = activeItem;
@@ -446,37 +523,6 @@ namespace LoadOrderEditor
             }
 
             selectItem(placeholderName);
-
-            /*
-            Match matched = Regex.Match(_name, @"^\d+");
-            if (matched.Success)
-            {
-                string result = Regex.Replace(_name, @"^\d+", "").Trim();
-                foreach (Control component in orderList.Controls)
-                {
-                    if (component is Label && component.Text.ToLower().Contains(result.ToLower()))
-                    {
-                        string activeItem = component.Text;
-                        activeItem = "> " + activeItem;
-                        component.Text = activeItem;
-                        component.ForeColor = Color.DodgerBlue;
-                        break;
-                    }
-                    
-                }
-            }
-            */
-
-        }
-
-        private void optionsMoveUp_Click(object sender, EventArgs e)
-        {
-            MoveItemUp();
-        }
-
-        private void optionsMoveDown_Click(object sender, EventArgs e)
-        {
-            MoveItemDown();
         }
 
         private void mainForm_KeyDown(object sender, KeyEventArgs e)
@@ -484,6 +530,14 @@ namespace LoadOrderEditor
             if (e.Shift && e.KeyCode == Keys.R)
             {
                 refreshUI();
+                if (orderList.Controls.ContainsKey("modOrder0"))
+                {
+                    string activeItem = orderList.Controls["modOrder0"].Text;
+                    activeItem = "> " + activeItem;
+                    orderList.Controls["modOrder0"].Text = activeItem;
+                    orderList.Controls["modOrder0"].ForeColor = Color.DodgerBlue;
+                    orderList.Controls["modOrder0"].BackColor = selectColor;
+                }
             }
             else if (e.KeyCode == Keys.Up || e.KeyCode == Keys.W)
             {
@@ -565,6 +619,16 @@ namespace LoadOrderEditor
         private void btnFAQ_MouseLeave(object sender, EventArgs e)
         {
             btnFAQ.ForeColor = Color.LightGray;
+        }
+
+        private void optionsMoveUp_MouseDown(object sender, MouseEventArgs e)
+        {
+            MoveItemUp();
+        }
+
+        private void optionsMoveDown_MouseDown(object sender, MouseEventArgs e)
+        {
+            MoveItemDown();
         }
     }
 }
