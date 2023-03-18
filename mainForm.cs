@@ -25,12 +25,12 @@ namespace LoadOrderEditor
         public string orderFile;
         public string[] mainOrder = { };
 
-        public int sizeWidth = 333;
+        public int sizeWidth = 461;
         public int sizeHeight = 25;
 
         public Color idleColor = Color.FromArgb(255, 35, 35, 40);
-        public Color hoverColor = Color.FromArgb(255, 40, 40, 45);
-        public Color selectColor = Color.FromArgb(255, 45, 45, 50);
+        public Color hoverColor = Color.FromArgb(255, 37, 37, 43);
+        public Color selectColor = Color.FromArgb(255, 40, 40, 45);
 
         public mainForm()
         {
@@ -44,6 +44,9 @@ namespace LoadOrderEditor
 
         private void mainForm_Load(object sender, EventArgs e)
         {
+            sizeWidth = orderListPlaceholder.Size.Width;
+            sizeHeight = orderListPlaceholder.Size.Height;
+
             serverFolderPath = Path.Combine(currentDir, @"..\..\");
             serverFolder = Path.GetFullPath(serverFolderPath);
 
@@ -157,9 +160,13 @@ namespace LoadOrderEditor
             System.Windows.Forms.Label label = (System.Windows.Forms.Label)sender;
             if (label.Text != "")
             {
-                if (label.BackColor != selectColor)
+                if (label.BackColor == idleColor)
                 {
                     label.BackColor = hoverColor;
+                }
+                else if (label.BackColor == selectColor)
+                {
+                    label.BackColor = selectColor;
                 }
             }
         }
@@ -169,9 +176,13 @@ namespace LoadOrderEditor
             System.Windows.Forms.Label label = (System.Windows.Forms.Label)sender;
             if (label.Text != "")
             {
-                if (label.BackColor != selectColor)
+                if (label.BackColor == hoverColor)
                 {
                     label.BackColor = idleColor;
+                }
+                else if (label.BackColor == selectColor)
+                {
+                    label.BackColor = selectColor;
                 }
             }
         }
@@ -235,6 +246,7 @@ namespace LoadOrderEditor
                 activeItem = "> " + activeItem;
                 lbl.Text = activeItem;
                 lbl.ForeColor = Color.DodgerBlue;
+                lbl.BackColor = selectColor;
 
             }
         }
@@ -273,12 +285,24 @@ namespace LoadOrderEditor
 
         private void optionsClearCache_MouseEnter(object sender, EventArgs e)
         {
-            optionsClearCache.ForeColor = Color.DodgerBlue;
+            if (optionsClearCache.ForeColor == Color.MediumSpringGreen)
+            {
+            }
+            else
+            {
+                optionsClearCache.ForeColor = Color.DodgerBlue;
+            }
         }
 
         private void optionsClearCache_MouseLeave(object sender, EventArgs e)
         {
-            optionsClearCache.ForeColor = Color.LightGray;
+            if (optionsClearCache.ForeColor == Color.MediumSpringGreen)
+            {
+            }
+            else
+            {
+                optionsClearCache.ForeColor = Color.LightGray;
+            }
         }
 
         private void optionsOpenOrder_MouseEnter(object sender, EventArgs e)
@@ -306,6 +330,7 @@ namespace LoadOrderEditor
                         activeItem = "> " + activeItem;
                         component.Text = activeItem;
                         component.ForeColor = Color.DodgerBlue;
+                        component.BackColor = selectColor;
                     }
                 }
             }
@@ -487,6 +512,17 @@ namespace LoadOrderEditor
         private void optionsClearCache_Click(object sender, EventArgs e)
         {
             clearCache();
+            optionsClearCache.ForeColor = Color.MediumSpringGreen;
+
+            Timer timer = new Timer();
+            timer.Interval = 1000;
+            timer.Enabled = true;
+            timer.Start();
+            timer.Tick += (bsender, be) =>
+            {
+                optionsClearCache.ForeColor = Color.LightGray;
+                timer.Stop();
+            };
         }
 
         private void optionsOpenOrder_Click(object sender, EventArgs e)
@@ -508,6 +544,27 @@ namespace LoadOrderEditor
                 Debug.WriteLine($"ERROR: {err.Message.ToString()}");
                 MessageBox.Show($"Oops! It seems like we received an error. If you're uncertain what it\'s about, please message the developer with a screenshot:\n\n{err.Message.ToString()}", this.Text, MessageBoxButtons.OK);
             }
+        }
+
+        private void btnFAQ_Click(object sender, EventArgs e)
+        {
+            showMessage(
+                "Keybinds (when selecting a mod):\n" +
+                "\n" +
+                "W  //  Arrow Up :: Move mod UP in the load order\n\n" +
+                "S  //  Arrow Down :: Move mod DOWN in the load order\n\n" +
+                "Shift  +  R :: Refresh the UI"
+            );
+        }
+
+        private void btnFAQ_MouseEnter(object sender, EventArgs e)
+        {
+            btnFAQ.ForeColor = Color.DodgerBlue;
+        }
+
+        private void btnFAQ_MouseLeave(object sender, EventArgs e)
+        {
+            btnFAQ.ForeColor = Color.LightGray;
         }
     }
 }

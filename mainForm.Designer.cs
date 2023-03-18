@@ -40,6 +40,7 @@
             this.optionsOpenOrder = new System.Windows.Forms.Label();
             this.optionsClearCache = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
+            this.btnFAQ = new System.Windows.Forms.Label();
             this.orderList.SuspendLayout();
             this.orderOptions.SuspendLayout();
             this.SuspendLayout();
@@ -51,7 +52,7 @@
             this.orderListPlaceholder.AutoEllipsis = true;
             this.orderListPlaceholder.Location = new System.Drawing.Point(0, 2);
             this.orderListPlaceholder.Name = "orderListPlaceholder";
-            this.orderListPlaceholder.Size = new System.Drawing.Size(333, 25);
+            this.orderListPlaceholder.Size = new System.Drawing.Size(461, 25);
             this.orderListPlaceholder.TabIndex = 0;
             this.orderListPlaceholder.Text = "Placeholder";
             this.orderListPlaceholder.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -65,7 +66,7 @@
             this.orderList.Controls.Add(this.orderListPlaceholder);
             this.orderList.Location = new System.Drawing.Point(24, 46);
             this.orderList.Name = "orderList";
-            this.orderList.Size = new System.Drawing.Size(333, 413);
+            this.orderList.Size = new System.Drawing.Size(461, 529);
             this.orderList.TabIndex = 1;
             // 
             // loadOrderTitle
@@ -74,7 +75,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.loadOrderTitle.Location = new System.Drawing.Point(27, 16);
             this.loadOrderTitle.Name = "loadOrderTitle";
-            this.loadOrderTitle.Size = new System.Drawing.Size(329, 22);
+            this.loadOrderTitle.Size = new System.Drawing.Size(457, 22);
             this.loadOrderTitle.TabIndex = 2;
             this.loadOrderTitle.Text = "Load Order";
             this.loadOrderTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -84,9 +85,9 @@
             this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel1.Location = new System.Drawing.Point(358, 46);
+            this.panel1.Location = new System.Drawing.Point(486, 46);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1, 413);
+            this.panel1.Size = new System.Drawing.Size(1, 529);
             this.panel1.TabIndex = 3;
             // 
             // optionsMoveUp
@@ -132,9 +133,9 @@
             this.orderOptions.Controls.Add(this.optionsClearCache);
             this.orderOptions.Controls.Add(this.optionsMoveUp);
             this.orderOptions.Controls.Add(this.optionsMoveDown);
-            this.orderOptions.Location = new System.Drawing.Point(374, 46);
+            this.orderOptions.Location = new System.Drawing.Point(502, 46);
             this.orderOptions.Name = "orderOptions";
-            this.orderOptions.Size = new System.Drawing.Size(290, 413);
+            this.orderOptions.Size = new System.Drawing.Size(290, 529);
             this.orderOptions.TabIndex = 6;
             // 
             // optionsModInfo
@@ -190,12 +191,28 @@
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Bahnschrift Light", 9F);
             this.label1.ForeColor = System.Drawing.Color.Orange;
-            this.label1.Location = new System.Drawing.Point(21, 466);
+            this.label1.Location = new System.Drawing.Point(21, 582);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(287, 14);
             this.label1.TabIndex = 7;
             this.label1.Text = "NOTE: Mod #1 will load first, mod #2 will load 2nd, etc.";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // btnFAQ
+            // 
+            this.btnFAQ.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnFAQ.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.btnFAQ.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnFAQ.Font = new System.Drawing.Font("Bahnschrift Light", 9F);
+            this.btnFAQ.Location = new System.Drawing.Point(759, 8);
+            this.btnFAQ.Name = "btnFAQ";
+            this.btnFAQ.Size = new System.Drawing.Size(30, 30);
+            this.btnFAQ.TabIndex = 8;
+            this.btnFAQ.Text = "?";
+            this.btnFAQ.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.btnFAQ.Click += new System.EventHandler(this.btnFAQ_Click);
+            this.btnFAQ.MouseEnter += new System.EventHandler(this.btnFAQ_MouseEnter);
+            this.btnFAQ.MouseLeave += new System.EventHandler(this.btnFAQ_MouseLeave);
             // 
             // mainForm
             // 
@@ -203,7 +220,8 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(35)))), ((int)(((byte)(35)))), ((int)(((byte)(40)))));
-            this.ClientSize = new System.Drawing.Size(676, 488);
+            this.ClientSize = new System.Drawing.Size(804, 604);
+            this.Controls.Add(this.btnFAQ);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.orderOptions);
             this.Controls.Add(this.panel1);
@@ -239,6 +257,7 @@
         private System.Windows.Forms.Label optionsOpenOrder;
         private System.Windows.Forms.Label optionsModInfo;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label btnFAQ;
     }
 }
 
