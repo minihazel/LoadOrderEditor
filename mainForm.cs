@@ -51,54 +51,63 @@ namespace LoadOrderEditor
             serverFolderPath = Path.Combine(currentDir, @"..\..\");
             serverFolder = Path.GetFullPath(serverFolderPath);
 
-            bool serverFolderExists = Directory.Exists(serverFolder);
-            if (serverFolderExists)
+            string orderPath = Path.Combine(currentDir, "order.json");
+            bool orderPathExists = File.Exists(orderPath);
+            if (!orderPathExists)
             {
-                string directory = Path.GetDirectoryName(serverFolder);
-                this.Text = $"Load Order Editor - {directory}";
-                optionsClearCache.Text = $"   Clear cache for {Path.GetFileName(directory)}";
-                clearCache();
-                refreshUI();
 
-                if (orderList.Controls.ContainsKey("modOrder0"))
+            }
+            else
+            {
+                bool serverFolderExists = Directory.Exists(serverFolder);
+                if (serverFolderExists)
                 {
-                    string sliced = orderList.Controls["modOrder0"].Text.Remove(0, 2);
-                    string trimmed = Regex.Replace(sliced, @"^\d+", "").Trim();
-                    string modFolder = Path.Combine(currentDir, trimmed);
-                    string packageJsonFile = Path.Combine(modFolder, "package.json");
+                    string directory = Path.GetDirectoryName(serverFolder);
+                    this.Text = $"Load Order Editor - {directory}";
+                    optionsClearCache.Text = $"   Clear cache for {Path.GetFileName(directory)}";
+                    clearCache();
+                    refreshUI();
 
-                    bool packageJsonFileExists = File.Exists(packageJsonFile);
-                    if (packageJsonFileExists)
+                    if (orderList.Controls.ContainsKey("modOrder0"))
                     {
-                        string openFile = File.ReadAllText(packageJsonFile);
-                        JavaScriptSerializer packageFile = new JavaScriptSerializer();
-                        var packageObj = packageFile.Deserialize<Dictionary<string, object>>(openFile);
-                        string _name = packageObj["name"].ToString();
-                        string _version = packageObj["version"].ToString();
-                        string _author = packageObj["author"].ToString();
+                        string sliced = orderList.Controls["modOrder0"].Text.Remove(0, 2);
+                        string trimmed = Regex.Replace(sliced, @"^\d+", "").Trim();
+                        string modFolder = Path.Combine(currentDir, trimmed);
+                        string packageJsonFile = Path.Combine(modFolder, "package.json");
 
-                        optionsModInfo.Text =
-                            $"Mod name: {_name}" +
-                            $"\n\n" +
-                            $"Mod version: {_version}" +
-                            $"\n\n" +
-                            $"Mod author: {_author}";
-                    }
-                    else
-                    {
-                        optionsModInfo.Text =
-                            $"Mod name: N/A" +
-                            $"\n\n" +
-                            $"Mod version: N/A" +
-                            $"\n\n" +
-                            $"Mod author: N/A";
-                    }
+                        bool packageJsonFileExists = File.Exists(packageJsonFile);
+                        if (packageJsonFileExists)
+                        {
+                            string openFile = File.ReadAllText(packageJsonFile);
+                            JavaScriptSerializer packageFile = new JavaScriptSerializer();
+                            var packageObj = packageFile.Deserialize<Dictionary<string, object>>(openFile);
+                            string _name = packageObj["name"].ToString();
+                            string _version = packageObj["version"].ToString();
+                            string _author = packageObj["author"].ToString();
 
-                    string activeItem = orderList.Controls["modOrder0"].Text;
-                    activeItem = "> " + activeItem;
-                    orderList.Controls["modOrder0"].Text = activeItem;
-                    orderList.Controls["modOrder0"].ForeColor = Color.DodgerBlue;
-                    orderList.Controls["modOrder0"].BackColor = selectColor;
+                            optionsModInfo.Text =
+                                $"Mod name: {_name}" +
+                                $"\n\n" +
+                                $"Mod version: {_version}" +
+                                $"\n\n" +
+                                $"Mod author: {_author}";
+                        }
+                        else
+                        {
+                            optionsModInfo.Text =
+                                $"Mod name: N/A" +
+                                $"\n\n" +
+                                $"Mod version: N/A" +
+                                $"\n\n" +
+                                $"Mod author: N/A";
+                        }
+
+                        string activeItem = orderList.Controls["modOrder0"].Text;
+                        activeItem = "> " + activeItem;
+                        orderList.Controls["modOrder0"].Text = activeItem;
+                        orderList.Controls["modOrder0"].ForeColor = Color.DodgerBlue;
+                        orderList.Controls["modOrder0"].BackColor = selectColor;
+                    }
                 }
             }
         }
