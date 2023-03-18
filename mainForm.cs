@@ -74,17 +74,26 @@ namespace LoadOrderEditor
                     {
                         string openFile = File.ReadAllText(packageJsonFile);
                         JavaScriptSerializer packageFile = new JavaScriptSerializer();
-                        var packageObj = packageFile.Deserialize<Dictionary<string, object>>(openFile);
-                        string _name = packageObj["name"].ToString();
-                        string _version = packageObj["version"].ToString();
-                        string _author = packageObj["author"].ToString();
+                        try
+                        {
+                            var packageObj = packageFile.Deserialize<Dictionary<string, object>>(openFile);
+                            string _name = packageObj["name"].ToString();
+                            string _version = packageObj["version"].ToString();
+                            string _author = packageObj["author"].ToString();
 
-                        optionsModInfo.Text =
+                            optionsModInfo.Text =
                             $"Mod name: {_name}" +
                             $"\n\n" +
                             $"Mod version: {_version}" +
                             $"\n\n" +
                             $"Mod author: {_author}";
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"ERROR: {ex}");
+                            MessageBox.Show($"It seems that your order.json file is faulty, or another error occurred. Please delete your order.json and restart the app, alternatively edit the file manually.", this.Text, MessageBoxButtons.OK);
+                        }
+
                     }
                     else
                     {
@@ -154,40 +163,54 @@ namespace LoadOrderEditor
             bool orderFileExists = File.Exists(orderFile);
             if (orderFileExists)
             {
-                List<string> modList = new List<string>();
-
-                string orderJson = File.ReadAllText(orderFile);
-                JavaScriptSerializer serializer = new JavaScriptSerializer();
-                var orderObject = serializer.Deserialize<Dictionary<string, object>>(orderJson);
-                var loadOrder = (ArrayList)orderObject["order"];
-
-                // -- Check if user/mods contain any folders that are NOT in the load order
-                string[] modsFolders = Directory.GetDirectories(currentDir);
-                foreach (string modFolder in modsFolders)
+                try
                 {
-                    string modName = Path.GetFileName(modFolder);
-                    if (!loadOrder.Contains(modName))
+                    List<string> modList = new List<string>();
+                    string orderJson = File.ReadAllText(orderFile);
+                    JavaScriptSerializer serializer = new JavaScriptSerializer();
+                    var orderObject = serializer.Deserialize<Dictionary<string, object>>(orderJson);
+                    var loadOrder = (ArrayList)orderObject["order"];
+
+                    // -- Check if user/mods contain any folders that are NOT in the load order
+                    string[] modsFolders = Directory.GetDirectories(currentDir);
+                    foreach (string modFolder in modsFolders)
                     {
-                        loadOrder.Add(modName);
+                        string modName = Path.GetFileName(modFolder);
+                        if (!loadOrder.Contains(modName))
+                        {
+                            loadOrder.Add(modName);
+                        }
+                    }
+
+                    try
+                    {
+                        string updatedJson = serializer.Serialize(orderObject);
+                        File.WriteAllText(orderFile, updatedJson);
+
+                        // -- Start process
+                        JavaScriptSerializer newSerializer = new JavaScriptSerializer();
+                        var newOrderObject = newSerializer.Deserialize<Dictionary<string, object>>(orderJson);
+                        var newLoadOrder = (ArrayList)newOrderObject["order"];
+
+                        foreach (string item in newLoadOrder)
+                        {
+                            modList.Add(item);
+                        }
+
+                        mainOrder = modList.ToArray();
+                        listMods(mainOrder);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"ERROR: {ex}");
+                        MessageBox.Show($"It seems that your order.json file is faulty, or another error occurred.\n\nPlease delete your order.json and restart the app, alternatively edit the file manually [NOT RECOMMENDED].", this.Text, MessageBoxButtons.OK);
                     }
                 }
-
-                string updatedJson = serializer.Serialize(orderObject);
-                File.WriteAllText(orderFile, updatedJson);
-
-                // -- Restart process
-
-                JavaScriptSerializer newSerializer = new JavaScriptSerializer();
-                var newOrderObject = newSerializer.Deserialize<Dictionary<string, object>>(orderJson);
-                var newLoadOrder = (ArrayList)newOrderObject["order"];
-
-                foreach (string item in newLoadOrder)
+                catch (Exception ex)
                 {
-                    modList.Add(item);
+                    Debug.WriteLine($"ERROR: {ex}");
+                    MessageBox.Show($"It seems that your order.json file is faulty, or another error occurred.\n\nPlease delete your order.json and restart the app, alternatively edit the file manually [NOT RECOMMENDED].", this.Text, MessageBoxButtons.OK);
                 }
-
-                mainOrder = modList.ToArray();
-                listMods(mainOrder);
             }
             else
             {
@@ -304,18 +327,27 @@ namespace LoadOrderEditor
                     if (packageJsonFileExists)
                     {
                         string openFile = File.ReadAllText(packageJsonFile);
-                        JavaScriptSerializer packageFile = new JavaScriptSerializer();
-                        var packageObj = packageFile.Deserialize<Dictionary<string, object>>(openFile);
-                        string _name = packageObj["name"].ToString();
-                        string _version = packageObj["version"].ToString();
-                        string _author = packageObj["author"].ToString();
 
-                        optionsModInfo.Text =
-                            $"Mod name: {_name}" +
-                            $"\n\n" +
-                            $"Mod version: {_version}" +
-                            $"\n\n" +
-                            $"Mod author: {_author}";
+                        try
+                        {
+                            JavaScriptSerializer packageFile = new JavaScriptSerializer();
+                            var packageObj = packageFile.Deserialize<Dictionary<string, object>>(openFile);
+                            string _name = packageObj["name"].ToString();
+                            string _version = packageObj["version"].ToString();
+                            string _author = packageObj["author"].ToString();
+
+                            optionsModInfo.Text =
+                                $"Mod name: {_name}" +
+                                $"\n\n" +
+                                $"Mod version: {_version}" +
+                                $"\n\n" +
+                                $"Mod author: {_author}";
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"ERROR: {ex}");
+                            MessageBox.Show($"It seems that your order.json file is faulty, or another error occurred. Please delete your order.json and restart the app, alternatively edit the file manually.", this.Text, MessageBoxButtons.OK);
+                        }
                     }
                     else
                     {
@@ -419,18 +451,27 @@ namespace LoadOrderEditor
                         if (packageJsonFileExists)
                         {
                             string openFile = File.ReadAllText(packageJsonFile);
-                            JavaScriptSerializer packageFile = new JavaScriptSerializer();
-                            var packageObj = packageFile.Deserialize<Dictionary<string, object>>(openFile);
-                            string _name = packageObj["name"].ToString();
-                            string _version = packageObj["version"].ToString();
-                            string _author = packageObj["author"].ToString();
 
-                            optionsModInfo.Text =
-                                $"Mod name: {_name}" +
-                                $"\n\n" +
-                                $"Mod version: {_version}" +
-                                $"\n\n" +
-                                $"Mod author: {_author}";
+                            try
+                            {
+                                JavaScriptSerializer packageFile = new JavaScriptSerializer();
+                                var packageObj = packageFile.Deserialize<Dictionary<string, object>>(openFile);
+                                string _name = packageObj["name"].ToString();
+                                string _version = packageObj["version"].ToString();
+                                string _author = packageObj["author"].ToString();
+
+                                optionsModInfo.Text =
+                                    $"Mod name: {_name}" +
+                                    $"\n\n" +
+                                    $"Mod version: {_version}" +
+                                    $"\n\n" +
+                                    $"Mod author: {_author}";
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine($"ERROR: {ex}");
+                                MessageBox.Show($"It seems that your order.json file is faulty, or another error occurred. Please delete your order.json and restart the app, alternatively edit the file manually.", this.Text, MessageBoxButtons.OK);
+                            }
                         }
                         else
                         {
@@ -476,29 +517,38 @@ namespace LoadOrderEditor
                         if (orderFileExists)
                         {
                             string orderJson = File.ReadAllText(orderFile);
-                            JavaScriptSerializer serializer = new JavaScriptSerializer();
-                            var orderObject = serializer.Deserialize<Dictionary<string, object>>(orderJson);
-                            var orderArray = (ArrayList)orderObject["order"];
 
-                            int itemIndex = Array.IndexOf(orderArray.ToArray(), result);
-                            int lastIndex = orderArray.Count - 1;
-                            if (itemIndex == 0)
+                            try
                             {
-                                return;
+                                JavaScriptSerializer serializer = new JavaScriptSerializer();
+                                var orderObject = serializer.Deserialize<Dictionary<string, object>>(orderJson);
+                                var orderArray = (ArrayList)orderObject["order"];
+
+                                int itemIndex = Array.IndexOf(orderArray.ToArray(), result);
+                                int lastIndex = orderArray.Count - 1;
+                                if (itemIndex == 0)
+                                {
+                                    return;
+                                }
+                                else if (itemIndex > 0)
+                                {
+                                    object temp = orderArray[itemIndex - 1];
+                                    orderArray[itemIndex - 1] = orderArray[itemIndex];
+                                    orderArray[itemIndex] = temp;
+                                }
+
+                                string updatedOrderJson = serializer.Serialize(orderObject);
+                                var newObject = serializer.Deserialize<Dictionary<string, object>>(updatedOrderJson);
+                                var newOrderArray = (ArrayList)newObject["order"];
+
+                                File.WriteAllText(orderFile, updatedOrderJson);
+                                refreshUI();
                             }
-                            else if (itemIndex > 0)
+                            catch (Exception ex)
                             {
-                                object temp = orderArray[itemIndex - 1];
-                                orderArray[itemIndex - 1] = orderArray[itemIndex];
-                                orderArray[itemIndex] = temp;
+                                Debug.WriteLine($"ERROR: {ex}");
+                                MessageBox.Show($"It seems that your order.json file is faulty, or another error occurred. Please delete your order.json and restart the app, alternatively edit the file manually.", this.Text, MessageBoxButtons.OK);
                             }
-
-                            string updatedOrderJson = serializer.Serialize(orderObject);
-                            var newObject = serializer.Deserialize<Dictionary<string, object>>(updatedOrderJson);
-                            var newOrderArray = (ArrayList)newObject["order"];
-
-                            File.WriteAllText(orderFile, updatedOrderJson);
-                            refreshUI();
                         }
                     }
                     break;
@@ -532,29 +582,38 @@ namespace LoadOrderEditor
                         if (orderFileExists)
                         {
                             string orderJson = File.ReadAllText(orderFile);
-                            JavaScriptSerializer serializer = new JavaScriptSerializer();
-                            var orderObject = serializer.Deserialize<Dictionary<string, object>>(orderJson);
-                            var orderArray = (ArrayList)orderObject["order"];
 
-                            int itemIndex = Array.IndexOf(orderArray.ToArray(), result);
-                            int lastIndex = orderArray.Count - 1;
-                            if (itemIndex < lastIndex)
+                            try
                             {
-                                object temp = orderArray[itemIndex + 1];
-                                orderArray[itemIndex + 1] = orderArray[itemIndex];
-                                orderArray[itemIndex] = temp;
+                                JavaScriptSerializer serializer = new JavaScriptSerializer();
+                                var orderObject = serializer.Deserialize<Dictionary<string, object>>(orderJson);
+                                var orderArray = (ArrayList)orderObject["order"];
+
+                                int itemIndex = Array.IndexOf(orderArray.ToArray(), result);
+                                int lastIndex = orderArray.Count - 1;
+                                if (itemIndex < lastIndex)
+                                {
+                                    object temp = orderArray[itemIndex + 1];
+                                    orderArray[itemIndex + 1] = orderArray[itemIndex];
+                                    orderArray[itemIndex] = temp;
+                                }
+                                else
+                                {
+                                    return;
+                                }
+
+                                string updatedOrderJson = serializer.Serialize(orderObject);
+                                var newObject = serializer.Deserialize<Dictionary<string, object>>(updatedOrderJson);
+                                var newOrderArray = (ArrayList)newObject["order"];
+
+                                File.WriteAllText(orderFile, updatedOrderJson);
+                                refreshUI();
                             }
-                            else
+                            catch (Exception ex)
                             {
-                                return;
+                                Debug.WriteLine($"ERROR: {ex}");
+                                MessageBox.Show($"It seems that your order.json file is faulty, or another error occurred. Please delete your order.json and restart the app, alternatively edit the file manually.", this.Text, MessageBoxButtons.OK);
                             }
-
-                            string updatedOrderJson = serializer.Serialize(orderObject);
-                            var newObject = serializer.Deserialize<Dictionary<string, object>>(updatedOrderJson);
-                            var newOrderArray = (ArrayList)newObject["order"];
-
-                            File.WriteAllText(orderFile, updatedOrderJson);
-                            refreshUI();
                         }
                     }
                     break;
