@@ -879,8 +879,26 @@ namespace LoadOrderEditor
         private void btnFAQ_Click(object sender, EventArgs e)
         {
             showMessage(
-                "Keybinds (when selecting a mod):\n" +
-                "\n" +
+                "CURRENT FEATURES ::\n" +
+                "\n\n" +
+                "- Order.json autofill\n" +
+                "(mod folders will be automatically inserted on start and UI refresh)" +
+                "\n\n" +
+                "- Order.json auto-removal\n" +
+                "(if selected, redundant items in order.json will be removed)" +
+                "\n\n" +
+                "- Double-Click to open mod in File Explorer\n" +
+                "\n\n" +
+                "- Automatic + manual cache clearing\n" +
+                "\n\n" +
+                "- Open order.json with default editor\n" +
+                "\n\n" +
+                "- Reordering of load ordering with keybinds + arrow buttons\n" +
+                "\n\n" +
+                "- Mod metadata listing\n" +
+                "\n\n" +
+                "KEYBINDS ::\n" +
+                "\n\n" +
                 "W  //  Arrow Up :: Move mod UP in the load order\n\n" +
                 "S  //  Arrow Down :: Move mod DOWN in the load order\n\n" +
                 "Shift  +  R :: Refresh the UI"

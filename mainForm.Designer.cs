@@ -206,11 +206,11 @@
             this.btnFAQ.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.btnFAQ.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnFAQ.Font = new System.Drawing.Font("Bahnschrift Light", 9F);
-            this.btnFAQ.Location = new System.Drawing.Point(759, 8);
+            this.btnFAQ.Location = new System.Drawing.Point(754, 8);
             this.btnFAQ.Name = "btnFAQ";
-            this.btnFAQ.Size = new System.Drawing.Size(30, 30);
+            this.btnFAQ.Size = new System.Drawing.Size(35, 30);
             this.btnFAQ.TabIndex = 8;
-            this.btnFAQ.Text = "?";
+            this.btnFAQ.Text = "FAQ";
             this.btnFAQ.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.btnFAQ.Click += new System.EventHandler(this.btnFAQ_Click);
             this.btnFAQ.MouseEnter += new System.EventHandler(this.btnFAQ_MouseEnter);
