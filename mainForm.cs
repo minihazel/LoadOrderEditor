@@ -55,7 +55,7 @@ namespace LoadOrderEditor
             bool orderPathExists = File.Exists(orderPath);
             if (!orderPathExists)
             {
-                showMessage("\'order.json\' does not seem to exist.\n\nPlease run Aki.Server.exe once before you try to use this tool.");
+                showMessage("\'order.json\' does not seem to exist.\n\nPlease run Aki.Server.exe once before you try to use this tool.\nAlternatively, put this in user\\mods if you haven\'t already!");
                 Application.Exit();
             }
             else
