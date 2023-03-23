@@ -39,6 +39,40 @@ namespace LoadOrderEditor
             InitializeComponent();
         }
 
+        protected override void WndProc(ref Message m)
+        {
+            base.WndProc(ref m);
+            switch (m.Msg)
+            {
+                case 0x84: //WM_NCHITTEST
+                    var result = (HitTest)m.Result.ToInt32();
+                    if (result == HitTest.Left || result == HitTest.Right)
+                        m.Result = new IntPtr((int)HitTest.Caption);
+                    if (result == HitTest.TopLeft || result == HitTest.TopRight)
+                        m.Result = new IntPtr((int)HitTest.Top);
+                    if (result == HitTest.BottomLeft || result == HitTest.BottomRight)
+                        m.Result = new IntPtr((int)HitTest.Bottom);
+
+                    break;
+            }
+        }
+        enum HitTest
+        {
+            Caption = 2,
+            Transparent = -1,
+            Nowhere = 0,
+            Client = 1,
+            Left = 10,
+            Right = 11,
+            Top = 12,
+            TopLeft = 13,
+            TopRight = 14,
+            Bottom = 15,
+            BottomLeft = 16,
+            BottomRight = 17,
+            Border = 18
+        }
+
         public void showMessage(string content)
         {
             MessageBox.Show(content, this.Text, MessageBoxButtons.OK);
@@ -46,9 +80,6 @@ namespace LoadOrderEditor
 
         private void mainForm_Load(object sender, EventArgs e)
         {
-            sizeWidth = orderListPlaceholder.Size.Width;
-            sizeHeight = orderListPlaceholder.Size.Height;
-
             serverFolderPath = Path.Combine(currentDir, @"..\..\");
             serverFolder = Path.GetFullPath(serverFolderPath);
 
@@ -332,7 +363,7 @@ namespace LoadOrderEditor
                 
             }
         }
-
+        
         public void listMods(string[] arr)
         {
             for (int i = 0; i < mainOrder.Length; i++)
@@ -345,8 +376,8 @@ namespace LoadOrderEditor
                 lbl.Anchor = (AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right);
                 lbl.TextAlign = orderListPlaceholder.TextAlign;
                 lbl.Size = new Size(sizeWidth, sizeHeight);
-                lbl.Location = new Point(orderListPlaceholder.Location.X, orderListPlaceholder.Location.Y + (i * 30));
-                lbl.Font = new Font("Bahnschrift Light", 11, FontStyle.Regular);
+                lbl.Location = new Point(orderListPlaceholder.Location.X, orderListPlaceholder.Location.Y + (i * 26));
+                lbl.Font = new Font("Bahnschrift Light", 10, FontStyle.Regular);
                 lbl.BackColor = idleColor;
                 lbl.ForeColor = Color.LightGray;
                 lbl.Margin = new Padding(1, 1, 1, 1);
@@ -657,14 +688,11 @@ namespace LoadOrderEditor
                 if (component is Label && component.ForeColor == Color.DodgerBlue)
                 {
                     _name = component.Text.Remove(0, 2);
-
                     placeholderName = Regex.Replace(_name, @"^\d+", "").Trim();
 
                     Match matchedNumber = Regex.Match(_name, @"^\d+");
                     if (matchedNumber.Success)
                     {
-                        sizeHeight = component.Size.Height;
-                        sizeWidth = component.Size.Width;
                         string result = Regex.Replace(_name, @"^\d+", "").Trim();
                         orderFile = Path.Combine(currentDir, "order.json");
                         bool orderFileExists = File.Exists(orderFile);
@@ -740,8 +768,6 @@ namespace LoadOrderEditor
                     Match matchedNumber = Regex.Match(_name, @"^\d+");
                     if (matchedNumber.Success)
                     {
-                        sizeHeight = component.Size.Height;
-                        sizeWidth = component.Size.Width;
                         string result = Regex.Replace(_name, @"^\d+", "").Trim();
                         orderFile = Path.Combine(currentDir, "order.json");
                         bool orderFileExists = File.Exists(orderFile);
