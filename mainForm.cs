@@ -291,9 +291,11 @@ namespace LoadOrderEditor
                         string updatedJson = serializer.Serialize(orderObject);
                         File.WriteAllText(orderFile, updatedJson);
 
+                        System.Threading.Thread.Sleep(500);
+
                         // -- Start process
                         JavaScriptSerializer newSerializer = new JavaScriptSerializer();
-                        var newOrderObject = newSerializer.Deserialize<Dictionary<string, object>>(orderJson);
+                        var newOrderObject = newSerializer.Deserialize<Dictionary<string, object>>(updatedJson);
                         var newLoadOrder = (ArrayList)newOrderObject["order"];
 
                         foreach (string item in newLoadOrder)
