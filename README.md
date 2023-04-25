@@ -8,6 +8,7 @@ A quick and simple tool to easily adjust the load ordering for SPT-AKI server mo
 - `Cache clearing` | Ability to clear the Server's cache.
 - `Order.json editing` | Ability to open order.json via the user's default text editor.
 - `Hotkey reordering` | Reordering can be done via Arrow keys + Up and Down buttons on the side.
+- `Tooltips` | Tooltips are enabled on certain controls, such as the Delete, FAQ and moving buttons.
 
 ### Keybinds
 `W` / `Arrow Up` | Move the selected mod UP in the load order.
