@@ -14,6 +14,7 @@ using System.Text.RegularExpressions;
 using System.Runtime.InteropServices;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.Remoting.Contexts;
 
 namespace LoadOrderEditor
 {
@@ -863,6 +864,39 @@ namespace LoadOrderEditor
             */
         }
 
+        public void deleteMod(string modText)
+        {
+            string modPath = Path.Combine(currentDir, modText);
+            bool pathExists = Directory.Exists(modPath);
+
+            if (pathExists)
+            {
+                try
+                {
+                    Directory.Delete(modPath, true);
+                    orderFile = Path.Combine(currentDir, "order.json");
+                    bool orderFileExists = File.Exists(orderFile);
+                    if (orderFileExists)
+                    {
+                        string orderJson = File.ReadAllText(orderFile);
+                        JavaScriptSerializer serializer = new JavaScriptSerializer();
+                        var orderObject = serializer.Deserialize<Dictionary<string, object>>(orderJson);
+                        var loadOrder = (ArrayList)orderObject["order"];
+
+                        loadOrder.Remove(modText);
+                        string updatedJson = serializer.Serialize(orderObject);
+                        File.WriteAllText(orderFile, updatedJson);
+                        refreshUI();
+                    }
+                }
+                catch (Exception err)
+                {
+                    Debug.WriteLine($"ERROR: {err.Message.ToString()}");
+                    MessageBox.Show($"Oops! It seems like we received an error. If you're uncertain what it\'s about, please message the developer with a screenshot:\n\n{err.Message.ToString()}", this.Text, MessageBoxButtons.OK);
+                }
+            }
+        }
+
         private void btnFolder_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
@@ -907,6 +941,65 @@ namespace LoadOrderEditor
                 Debug.WriteLine($"ERROR: {err.Message.ToString()}");
                 MessageBox.Show($"Oops! It seems like we received an error. If you're uncertain what it\'s about, please message the developer with a screenshot:\n\n{err.Message.ToString()}", this.Text, MessageBoxButtons.OK);
             }
+        }
+
+        private void btnDeleteMod_Click(object sender, EventArgs e)
+        {
+            bool noneSelected = true;
+
+            foreach (Control component in orderList.Controls)
+            {
+                if (component is Label)
+                {
+                    if (component.ForeColor == Color.DodgerBlue)
+                    {
+                        noneSelected = false;
+
+                        string modName = component.Text.Remove(0, 2);
+                        modName = Regex.Replace(modName, @"^\d+", "").Trim();
+                        string path = Path.Combine(currentDir, modName);
+                        bool pathExists = Directory.Exists(path);
+
+                        if (pathExists)
+                        {
+                            if (MessageBox.Show($"Delete mod {modName}?\n\nSelect No to cancel", this.Text, MessageBoxButtons.YesNo) == DialogResult.Yes)
+                            {
+                                deleteMod(modName);
+                                checkRedundantMods();
+                            }
+                        }
+                        else
+                        {
+                            checkRedundantMods();
+                        }
+
+                        break;
+                    }
+                }
+            }
+
+            if (noneSelected)
+            {
+                MessageBox.Show("No mods are selected, perhaps this was caused by a bug.\n\nWe have re-selected the topmost mod for you.", this.Text, MessageBoxButtons.OK);
+                
+                string activeItem = orderList.Controls["modOrder0"].Text;
+                activeItem = "> " + activeItem;
+                orderList.Controls["modOrder0"].Text = activeItem;
+                orderList.Controls["modOrder0"].ForeColor = Color.DodgerBlue;
+                orderList.Controls["modOrder0"].BackColor = selectColor;
+            }
+        }
+
+        private void btnDeleteMod_MouseEnter(object sender, EventArgs e)
+        {
+            btnDeleteMod.BackColor = selectColor;
+            btnDeleteMod.ForeColor = Color.IndianRed;
+        }
+
+        private void btnDeleteMod_MouseLeave(object sender, EventArgs e)
+        {
+            btnDeleteMod.BackColor = idleColor;
+            btnDeleteMod.ForeColor = Color.LightGray;
         }
     }
 }
