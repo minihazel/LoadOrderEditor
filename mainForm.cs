@@ -30,9 +30,15 @@ namespace LoadOrderEditor
         public int sizeWidth = 461;
         public int sizeHeight = 25;
 
+        public Color idleColor = Color.FromArgb(255, 28, 28, 28);
+        public Color hoverColor = Color.FromArgb(255, 30, 30, 30);
+        public Color selectColor = Color.FromArgb(255, 32, 32, 32);
+
+        /* ORIGINAL COLORS
         public Color idleColor = Color.FromArgb(255, 35, 35, 40);
         public Color hoverColor = Color.FromArgb(255, 37, 37, 43);
         public Color selectColor = Color.FromArgb(255, 40, 40, 45);
+        */
 
         public mainForm()
         {
@@ -90,9 +96,8 @@ namespace LoadOrderEditor
                 refreshUI();
 
                 string directory = Path.GetDirectoryName(serverFolder);
-                this.Text = $"Load Order Editor - {directory}";
-                optionsClearCache.Text = $"   Clear cache for {Path.GetFileName(directory)}";
-                clearCache();
+                this.Text = $"Load Order Editor ({Path.GetFileName(directory)})";
+                // clearCache();
 
                 if (orderList.Controls.ContainsKey("modOrder0"))
                 {
@@ -112,13 +117,6 @@ namespace LoadOrderEditor
                             string _name = packageObj["name"].ToString();
                             string _version = packageObj["version"].ToString();
                             string _author = packageObj["author"].ToString();
-
-                            optionsModInfo.Text =
-                            $"Mod name: {_name}" +
-                            $"\n\n" +
-                            $"Mod version: {_version}" +
-                            $"\n\n" +
-                            $"Mod author: {_author}";
                         }
                         catch (Exception ex)
                         {
@@ -143,21 +141,19 @@ namespace LoadOrderEditor
                         }
 
                     }
-                    else
-                    {
-                        optionsModInfo.Text =
-                            $"Mod name: N/A" +
-                            $"\n\n" +
-                            $"Mod version: N/A" +
-                            $"\n\n" +
-                            $"Mod author: N/A";
-                    }
 
                     string activeItem = orderList.Controls["modOrder0"].Text;
                     activeItem = "> " + activeItem;
                     orderList.Controls["modOrder0"].Text = activeItem;
                     orderList.Controls["modOrder0"].ForeColor = Color.DodgerBlue;
                     orderList.Controls["modOrder0"].BackColor = selectColor;
+                }
+            }
+            else
+            {
+                if (MessageBox.Show($"We could not detect the Server folder (where Aki.Server.exe is).\n\nPlease put 'Load Order Editor.exe' into your user\\mods folder and try again!", this.Text, MessageBoxButtons.OK) == DialogResult.OK)
+                {
+                    Application.Exit();
                 }
             }
         }
@@ -252,8 +248,9 @@ namespace LoadOrderEditor
                             loadOrder.Remove(item);
                             string updatedJson = serializer.Serialize(orderObject);
                             File.WriteAllText(orderFile, updatedJson);
-                            Application.Restart();
                         }
+
+                        Application.Restart();
                     }
                 }
             }
@@ -376,7 +373,7 @@ namespace LoadOrderEditor
                 lbl.Anchor = (AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right);
                 lbl.TextAlign = orderListPlaceholder.TextAlign;
                 lbl.Size = new Size(sizeWidth, sizeHeight);
-                lbl.Location = new Point(orderListPlaceholder.Location.X, orderListPlaceholder.Location.Y + (i * 26));
+                lbl.Location = new Point(orderListPlaceholder.Location.X, orderListPlaceholder.Location.Y + (i * 25));
                 lbl.Font = new Font("Bahnschrift Light", 10, FontStyle.Regular);
                 lbl.BackColor = idleColor;
                 lbl.ForeColor = Color.LightGray;
@@ -390,7 +387,7 @@ namespace LoadOrderEditor
                 orderList.Controls.Add(lbl);
             }
 
-            loadOrderTitle.Text = $"Edit order.json - {orderList.Controls.Count - 1} active mods";
+            loadOrderTitle.Text = $"{orderList.Controls.Count} active server mods";
         }
 
         private void lbl_MouseEnter(object sender, EventArgs e)
@@ -464,13 +461,6 @@ namespace LoadOrderEditor
                             string _name = packageObj["name"].ToString();
                             string _version = packageObj["version"].ToString();
                             string _author = packageObj["author"].ToString();
-
-                            optionsModInfo.Text =
-                                $"Mod name: {_name}" +
-                                $"\n\n" +
-                                $"Mod version: {_version}" +
-                                $"\n\n" +
-                                $"Mod author: {_author}";
                         }
                         catch (Exception ex)
                         {
@@ -489,15 +479,6 @@ namespace LoadOrderEditor
                                 Application.Exit();
                             }
                         }
-                    }
-                    else
-                    {
-                        optionsModInfo.Text =
-                            $"Mod name: N/A" +
-                            $"\n\n" +
-                            $"Mod version: N/A" +
-                            $"\n\n" +
-                            $"Mod author: N/A";
                     }
                 }
 
@@ -574,38 +555,6 @@ namespace LoadOrderEditor
             optionsMoveDown.BackColor = idleColor;
         }
 
-        private void optionsClearCache_MouseEnter(object sender, EventArgs e)
-        {
-            if (optionsClearCache.ForeColor == Color.MediumSpringGreen)
-            {
-            }
-            else
-            {
-                optionsClearCache.ForeColor = Color.DodgerBlue;
-            }
-        }
-
-        private void optionsClearCache_MouseLeave(object sender, EventArgs e)
-        {
-            if (optionsClearCache.ForeColor == Color.MediumSpringGreen)
-            {
-            }
-            else
-            {
-                optionsClearCache.ForeColor = Color.LightGray;
-            }
-        }
-
-        private void optionsOpenOrder_MouseEnter(object sender, EventArgs e)
-        {
-            optionsOpenOrder.ForeColor = Color.DodgerBlue;
-        }
-
-        private void optionsOpenOrder_MouseLeave(object sender, EventArgs e)
-        {
-            optionsOpenOrder.ForeColor = Color.LightGray;
-        }
-
         public void selectItem(string itemName)
         {
             foreach (Control component in orderList.Controls)
@@ -632,13 +581,6 @@ namespace LoadOrderEditor
                                 string _name = packageObj["name"].ToString();
                                 string _version = packageObj["version"].ToString();
                                 string _author = packageObj["author"].ToString();
-
-                                optionsModInfo.Text =
-                                    $"Mod name: {_name}" +
-                                    $"\n\n" +
-                                    $"Mod version: {_version}" +
-                                    $"\n\n" +
-                                    $"Mod author: {_author}";
                             }
                             catch (Exception ex)
                             {
@@ -657,15 +599,6 @@ namespace LoadOrderEditor
                                     Application.Exit();
                                 }
                             }
-                        }
-                        else
-                        {
-                            optionsModInfo.Text =
-                                $"Mod name: N/A" +
-                                $"\n\n" +
-                                $"Mod version: N/A" +
-                                $"\n\n" +
-                                $"Mod author: N/A";
                         }
 
                         string activeItem = component.Text;
@@ -867,39 +800,10 @@ namespace LoadOrderEditor
 
         private void optionsClearCache_Click(object sender, EventArgs e)
         {
-            clearCache();
-            optionsClearCache.ForeColor = Color.MediumSpringGreen;
-
-            Timer timer = new Timer();
-            timer.Interval = 1000;
-            timer.Enabled = true;
-            timer.Start();
-            timer.Tick += (bsender, be) =>
-            {
-                optionsClearCache.ForeColor = Color.LightGray;
-                timer.Stop();
-            };
         }
 
         private void optionsOpenOrder_Click(object sender, EventArgs e)
         {
-            try
-            {
-                bool orderExists = File.Exists(orderFile);
-                if (orderExists)
-                {
-                    Process.Start(orderFile);
-                }
-                else
-                {
-                    showMessage("Hmm, it appears that \"order.json\" was deleted or otherwise doesn\'t exist. We apologize for this inconvenience.");
-                }
-            }
-            catch (Exception err)
-            {
-                Debug.WriteLine($"ERROR: {err.Message.ToString()}");
-                MessageBox.Show($"Oops! It seems like we received an error. If you're uncertain what it\'s about, please message the developer with a screenshot:\n\n{err.Message.ToString()}", this.Text, MessageBoxButtons.OK);
-            }
         }
 
         private void btnFAQ_Click(object sender, EventArgs e)
@@ -949,6 +853,76 @@ namespace LoadOrderEditor
         private void optionsMoveDown_MouseDown(object sender, MouseEventArgs e)
         {
             MoveItemDown();
+        }
+
+        private void btnFolder_Click(object sender, EventArgs e)
+        {
+            /*
+            if (btnFolder.Text == ">")
+            {
+                btnFolder.Text = "<";
+                btnFAQ.Location = new Point(452, 8);
+
+                this.Size = new Size(552, this.Size.Height);
+                orderOptions.Visible = false;
+
+            }
+            else
+            {
+                btnFolder.Text = ">";
+                btnFAQ.Location = new Point(676, 8);
+
+                this.Size = new Size(738, this.Size.Height);
+                orderOptions.Visible = true;
+
+            }
+            */
+        }
+
+        private void btnFolder_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                dropdownMenu.Show(btnFolder, new Point(0, btnFolder.Height));
+            }
+        }
+
+        private void btnFolder_MouseEnter(object sender, EventArgs e)
+        {
+            btnFolder.BackColor = selectColor;
+            btnFolder.ForeColor = Color.DodgerBlue;
+        }
+
+        private void btnFolder_MouseLeave(object sender, EventArgs e)
+        {
+            btnFolder.BackColor = idleColor;
+            btnFolder.ForeColor = Color.LightGray;
+        }
+
+        private void btnClearServerCache_Click(object sender, EventArgs e)
+        {
+            clearCache();
+        }
+
+        private void btnOpenOrderJson_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                bool orderExists = File.Exists(orderFile);
+                if (orderExists)
+                {
+                    Process.Start(orderFile);
+                }
+                else
+                {
+                    showMessage("Hmm, it appears that \"order.json\" was deleted or otherwise doesn\'t exist. We apologize for this inconvenience.");
+                }
+            }
+            catch (Exception err)
+            {
+                Debug.WriteLine($"ERROR: {err.Message.ToString()}");
+                MessageBox.Show($"Oops! It seems like we received an error. If you're uncertain what it\'s about, please message the developer with a screenshot:\n\n{err.Message.ToString()}", this.Text, MessageBoxButtons.OK);
+            }
         }
     }
 }
